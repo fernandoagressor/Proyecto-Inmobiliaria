@@ -12,6 +12,8 @@ import java.util.Optional;
 @Repository
 public interface FacturaRepository extends JpaRepository<Factura, Long> {
 
+    Long countByEstadoIgnoreCase(String estado);
+
     Page<Factura> findByActivoTrue(Pageable pageable);
 
     Optional<Factura> findByIdFacturaAndActivoTrue(Long idFactura);

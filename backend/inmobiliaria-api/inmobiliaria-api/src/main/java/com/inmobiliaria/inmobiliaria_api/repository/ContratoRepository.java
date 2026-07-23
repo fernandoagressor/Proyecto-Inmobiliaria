@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ContratoRepository extends JpaRepository<Contrato, Long> {
 
+    Long countByEstadoIgnoreCase(String estado);
     Page<Contrato> findByActivoTrue(Pageable pageable);
 
 }
