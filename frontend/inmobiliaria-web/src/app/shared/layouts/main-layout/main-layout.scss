@@ -1,0 +1,45 @@
+.layout-container {
+  height: 100vh;
+}
+
+.menu-lateral {
+  width: 260px;
+  border-right: 1px solid #e0e0e0;
+}
+
+.logo-container {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.barra-superior {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.titulo-aplicacion {
+  margin-left: 16px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.espaciador {
+  flex: 1;
+}
+
+.contenido-principal {
+  padding: 24px;
+  min-height: calc(100vh - 64px);
+  background: #f5f5f5;
+}
+
+.opcion-activa {
+  background-color: rgba(25, 118, 210, 0.12);
+  border-radius: 8px;
+}

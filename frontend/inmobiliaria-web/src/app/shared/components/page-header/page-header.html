@@ -1,0 +1,20 @@
+<div class="page-header">
+
+  <h2>{{ titulo }}</h2>
+
+  @if (textoBoton) {
+
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="ejecutarAccion()">
+
+    <mat-icon>{{ icono }}</mat-icon>
+
+    {{ textoBoton }}
+
+  </button>
+
+  }
+
+</div>

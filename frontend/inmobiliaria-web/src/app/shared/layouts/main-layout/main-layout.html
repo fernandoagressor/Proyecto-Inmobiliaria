@@ -1,0 +1,135 @@
+<mat-sidenav-container class="layout-container">
+
+  <mat-sidenav
+    class="menu-lateral"
+    mode="side"
+    [opened]="menuAbierto"
+  >
+
+    <div class="logo-container">
+      <mat-icon>apartment</mat-icon>
+
+      <span>Inmobiliaria</span>
+    </div>
+
+    <mat-nav-list>
+
+      <a
+        mat-list-item
+        routerLink="/dashboard"
+        routerLinkActive="opcion-activa"
+      >
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+
+        <span matListItemTitle>Dashboard</span>
+      </a>
+
+      <a
+        mat-list-item
+        routerLink="/clientes"
+        routerLinkActive="opcion-activa"
+      >
+        <mat-icon matListItemIcon>groups</mat-icon>
+
+        <span matListItemTitle>Clientes</span>
+      </a>
+
+      <a
+        mat-list-item
+        routerLink="/propiedades"
+        routerLinkActive="opcion-activa"
+      >
+        <mat-icon matListItemIcon>home_work</mat-icon>
+
+        <span matListItemTitle>Propiedades</span>
+      </a>
+
+      <a
+        mat-list-item
+        routerLink="/reservas"
+        routerLinkActive="opcion-activa"
+      >
+        <mat-icon matListItemIcon>event_available</mat-icon>
+
+        <span matListItemTitle>Reservas</span>
+      </a>
+
+      <a
+        mat-list-item
+        routerLink="/contratos"
+        routerLinkActive="opcion-activa"
+      >
+        <mat-icon matListItemIcon>description</mat-icon>
+
+        <span matListItemTitle>Contratos</span>
+      </a>
+
+      <a
+        mat-list-item
+        routerLink="/pagos"
+        routerLinkActive="opcion-activa"
+      >
+        <mat-icon matListItemIcon>payments</mat-icon>
+
+        <span matListItemTitle>Pagos</span>
+      </a>
+
+      <a
+        mat-list-item
+        routerLink="/facturas"
+        routerLinkActive="opcion-activa"
+      >
+        <mat-icon matListItemIcon>receipt_long</mat-icon>
+
+        <span matListItemTitle>Facturas</span>
+      </a>
+
+    </mat-nav-list>
+
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+
+    <mat-toolbar class="barra-superior">
+
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Abrir o cerrar menú"
+        (click)="alternarMenu()"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <span class="titulo-aplicacion">
+        Sistema de Gestión Inmobiliaria
+      </span>
+
+      <span class="espaciador"></span>
+
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Usuario"
+      >
+        <mat-icon>account_circle</mat-icon>
+      </button>
+
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Cerrar sesión"
+        (click)="cerrarSesion()"
+      >
+        <mat-icon>logout</mat-icon>
+      </button>
+
+    </mat-toolbar>
+
+    <main class="contenido-principal">
+      <router-outlet></router-outlet>
+    </main>
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

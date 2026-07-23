@@ -1,0 +1,134 @@
+<h2 mat-dialog-title>Registrar Pago</h2>
+
+<mat-dialog-content>
+
+  <form
+    [formGroup]="formulario"
+    class="formulario">
+
+    <!-- Contrato -->
+    <mat-form-field appearance="outline">
+
+      <mat-label>Contrato</mat-label>
+
+      <mat-select formControlName="idContrato">
+
+        <mat-option
+          *ngFor="let contrato of contratos"
+          [value]="contrato.idContrato">
+
+          {{ contrato.nombreCliente }}
+          -
+          {{ contrato.codigoPropiedad }}
+
+        </mat-option>
+
+      </mat-select>
+
+    </mat-form-field>
+
+    <!-- Número de cuota -->
+    <mat-form-field appearance="outline">
+
+      <mat-label>Número de cuota</mat-label>
+
+      <input
+        matInput
+        type="number"
+        formControlName="numeroCuota">
+
+    </mat-form-field>
+
+    <!-- Fecha -->
+    <mat-form-field appearance="outline">
+
+      <mat-label>Fecha de pago</mat-label>
+
+      <input
+        matInput
+        type="date"
+        formControlName="fechaPago">
+
+    </mat-form-field>
+
+    <!-- Valor -->
+    <mat-form-field appearance="outline">
+
+      <mat-label>Valor del pago</mat-label>
+
+      <input
+        matInput
+        type="number"
+        formControlName="valorPago">
+
+    </mat-form-field>
+
+    <!-- Medio de pago -->
+    <mat-form-field appearance="outline">
+
+      <mat-label>Medio de pago</mat-label>
+
+      <mat-select formControlName="medioPago">
+
+        <mat-option value="EFECTIVO">
+          EFECTIVO
+        </mat-option>
+
+        <mat-option value="TRANSFERENCIA">
+          TRANSFERENCIA
+        </mat-option>
+
+        <mat-option value="TARJETA">
+          TARJETA
+        </mat-option>
+
+        <mat-option value="NEQUI">
+          NEQUI
+        </mat-option>
+
+        <mat-option value="DAVIPLATA">
+          DAVIPLATA
+        </mat-option>
+
+      </mat-select>
+
+    </mat-form-field>
+
+    <!-- Observación -->
+    <mat-form-field appearance="outline">
+
+      <mat-label>Observación</mat-label>
+
+      <textarea
+        matInput
+        rows="3"
+        formControlName="observacion">
+      </textarea>
+
+    </mat-form-field>
+
+  </form>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+
+  <button
+    mat-button
+    mat-dialog-close>
+
+    Cancelar
+
+  </button>
+
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="guardar()"
+    [disabled]="guardando">
+
+    Guardar
+
+  </button>
+
+</mat-dialog-actions>

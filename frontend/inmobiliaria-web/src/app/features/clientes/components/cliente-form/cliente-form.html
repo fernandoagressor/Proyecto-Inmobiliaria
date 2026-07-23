@@ -1,0 +1,293 @@
+<h2 mat-dialog-title>
+  {{ modoEdicion ? 'Editar cliente' : 'Nuevo cliente' }}
+</h2>
+
+<form
+  [formGroup]="clienteForm"
+  (ngSubmit)="guardar()"
+>
+
+  <mat-dialog-content class="formulario-contenido">
+
+    @if (!modoEdicion) {
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tipo de documento</mat-label>
+
+      <mat-select formControlName="tipoDocumento">
+        <mat-option value="CC">
+          Cédula de ciudadanía
+        </mat-option>
+
+        <mat-option value="CE">
+          Cédula de extranjería
+        </mat-option>
+
+        <mat-option value="TI">
+          Tarjeta de identidad
+        </mat-option>
+
+        <mat-option value="PASAPORTE">
+          Pasaporte
+        </mat-option>
+
+        <mat-option value="NIT">
+          NIT
+        </mat-option>
+      </mat-select>
+
+      @if (
+      clienteForm.controls.tipoDocumento.touched &&
+      clienteForm.controls.tipoDocumento.hasError('required')
+      ) {
+      <mat-error>
+        El tipo de documento es obligatorio.
+      </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Número de documento</mat-label>
+
+      <input
+        matInput
+        type="text"
+        formControlName="numeroDocumento"
+        maxlength="20"
+      >
+
+      @if (
+      clienteForm.controls.numeroDocumento.touched &&
+      clienteForm.controls.numeroDocumento.hasError('required')
+      ) {
+      <mat-error>
+        El número de documento es obligatorio.
+      </mat-error>
+      }
+
+      @if (
+      clienteForm.controls.numeroDocumento.touched &&
+      clienteForm.controls.numeroDocumento.hasError('pattern')
+      ) {
+      <mat-error>
+        El número de documento solo puede contener números.
+      </mat-error>
+      }
+
+      @if (
+      clienteForm.controls.numeroDocumento.touched &&
+      clienteForm.controls.numeroDocumento.hasError('maxlength')
+      ) {
+      <mat-error>
+        El número de documento no puede superar los 20 caracteres.
+      </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Nombres</mat-label>
+
+      <input
+        matInput
+        type="text"
+        formControlName="nombres"
+        maxlength="100"
+      >
+
+      @if (
+      clienteForm.controls.nombres.touched &&
+      clienteForm.controls.nombres.hasError('required')
+      ) {
+      <mat-error>
+        Los nombres son obligatorios.
+      </mat-error>
+      }
+
+      @if (
+      clienteForm.controls.nombres.touched &&
+      clienteForm.controls.nombres.hasError('pattern')
+      ) {
+      <mat-error>
+        Los nombres solo pueden contener letras.
+      </mat-error>
+      }
+
+      @if (
+      clienteForm.controls.nombres.touched &&
+      clienteForm.controls.nombres.hasError('maxlength')
+      ) {
+      <mat-error>
+        Los nombres no pueden superar los 100 caracteres.
+      </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Apellidos</mat-label>
+
+      <input
+        matInput
+        type="text"
+        formControlName="apellidos"
+        maxlength="100"
+      >
+
+      @if (
+      clienteForm.controls.apellidos.touched &&
+      clienteForm.controls.apellidos.hasError('required')
+      ) {
+      <mat-error>
+        Los apellidos son obligatorios.
+      </mat-error>
+      }
+
+      @if (
+      clienteForm.controls.apellidos.touched &&
+      clienteForm.controls.apellidos.hasError('pattern')
+      ) {
+      <mat-error>
+        Los apellidos solo pueden contener letras.
+      </mat-error>
+      }
+
+      @if (
+      clienteForm.controls.apellidos.touched &&
+      clienteForm.controls.apellidos.hasError('maxlength')
+      ) {
+      <mat-error>
+        Los apellidos no pueden superar los 100 caracteres.
+      </mat-error>
+      }
+    </mat-form-field>
+
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>Teléfono</mat-label>
+
+      <input
+        matInput
+        type="text"
+        formControlName="telefono"
+        maxlength="10"
+      >
+
+      @if (
+      clienteForm.controls.telefono.touched &&
+      clienteForm.controls.telefono.hasError('required')
+      ) {
+      <mat-error>
+        El teléfono es obligatorio.
+      </mat-error>
+      }
+
+      @if (
+      clienteForm.controls.telefono.touched &&
+      clienteForm.controls.telefono.hasError('pattern')
+      ) {
+      <mat-error>
+        El teléfono debe contener exactamente 10 números.
+      </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Correo electrónico</mat-label>
+
+      <input
+        matInput
+        type="email"
+        formControlName="correo"
+        maxlength="100"
+      >
+
+      @if (
+      clienteForm.controls.correo.touched &&
+      clienteForm.controls.correo.hasError('required')
+      ) {
+      <mat-error>
+        El correo es obligatorio.
+      </mat-error>
+      }
+
+      @if (
+      clienteForm.controls.correo.touched &&
+      clienteForm.controls.correo.hasError('email')
+      ) {
+      <mat-error>
+        Debes ingresar un correo electrónico válido.
+      </mat-error>
+      }
+
+      @if (
+      clienteForm.controls.correo.touched &&
+      clienteForm.controls.correo.hasError('maxlength')
+      ) {
+      <mat-error>
+        El correo no puede superar los 100 caracteres.
+      </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Dirección</mat-label>
+
+      <input
+        matInput
+        type="text"
+        formControlName="direccion"
+        maxlength="200"
+      >
+
+      @if (
+      clienteForm.controls.direccion.touched &&
+      clienteForm.controls.direccion.hasError('required')
+      ) {
+      <mat-error>
+        La dirección es obligatoria.
+      </mat-error>
+      }
+
+      @if (
+      clienteForm.controls.direccion.touched &&
+      clienteForm.controls.direccion.hasError('minlength')
+      ) {
+      <mat-error>
+        La dirección debe tener mínimo 5 caracteres.
+      </mat-error>
+      }
+
+      @if (
+      clienteForm.controls.direccion.touched &&
+      clienteForm.controls.direccion.hasError('maxlength')
+      ) {
+      <mat-error>
+        La dirección no puede superar los 200 caracteres.
+      </mat-error>
+      }
+    </mat-form-field>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+
+    <button
+      mat-button
+      type="button"
+      mat-dialog-close
+    >
+      Cancelar
+    </button>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="clienteForm.invalid"
+    >
+      {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
+    </button>
+
+  </mat-dialog-actions>
+
+</form>

@@ -1,0 +1,178 @@
+<app-page-header
+  titulo="Pagos"
+  textoBoton="Nuevo Pago"
+  icono="add"
+  (accion)="abrirFormulario()">
+</app-page-header>
+
+<mat-card>
+
+  <mat-card-content>
+
+    <table
+      mat-table
+      [dataSource]="pagos"
+      class="tabla-pagos">
+
+      <!-- Contrato -->
+      <ng-container matColumnDef="contrato">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Contrato
+        </th>
+
+        <td mat-cell *matCellDef="let pago">
+          #{{ pago.idContrato }}
+        </td>
+
+      </ng-container>
+
+      <!-- Cliente -->
+      <ng-container matColumnDef="cliente">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Cliente
+        </th>
+
+        <td mat-cell *matCellDef="let pago">
+          {{ pago.nombreCliente }}
+        </td>
+
+      </ng-container>
+      <!-- Propiedad -->
+      <ng-container matColumnDef="propiedad">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Propiedad
+        </th>
+
+        <td mat-cell *matCellDef="let pago">
+          {{ pago.codigoPropiedad }}
+        </td>
+
+      </ng-container>
+
+      <!-- Estado -->
+      <ng-container matColumnDef="estado">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Estado
+        </th>
+
+        <td mat-cell *matCellDef="let pago">
+          {{ pago.estadoContrato }}
+        </td>
+
+      </ng-container>
+
+      <!-- Cuota -->
+      <ng-container matColumnDef="cuota">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Cuota
+        </th>
+
+        <td mat-cell *matCellDef="let pago">
+          {{ pago.numeroCuota }}
+        </td>
+
+      </ng-container>
+
+      <!-- Fecha -->
+      <ng-container matColumnDef="fecha">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Fecha
+        </th>
+
+        <td mat-cell *matCellDef="let pago">
+          {{ pago.fechaPago | date:'dd/MM/yyyy' }}
+        </td>
+
+      </ng-container>
+
+      <!-- Valor -->
+      <ng-container matColumnDef="valor">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Valor pagado
+        </th>
+
+        <td mat-cell *matCellDef="let pago">
+          {{ pago.valorPago | currency:'COP':'symbol':'1.0-0' }}
+        </td>
+
+      </ng-container>
+
+      <!-- Medio de pago -->
+      <ng-container matColumnDef="medioPago">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Medio de pago
+        </th>
+
+        <td mat-cell *matCellDef="let pago">
+          {{ pago.medioPago }}
+        </td>
+
+      </ng-container>
+
+      <!-- Saldo -->
+      <ng-container matColumnDef="saldo">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Saldo pendiente
+        </th>
+
+        <td mat-cell *matCellDef="let pago">
+          {{ pago.saldoPendiente | currency:'COP':'symbol':'1.0-0' }}
+        </td>
+
+      </ng-container>
+
+      <!-- Acciones -->
+      <ng-container matColumnDef="acciones">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Acciones
+        </th>
+
+        <td mat-cell *matCellDef="let pago">
+
+          <button
+            mat-icon-button
+            color="warn"
+            matTooltip="Anular pago"
+            (click)="anularPago(pago)">
+
+            <mat-icon>cancel</mat-icon>
+
+          </button>
+
+        </td>
+
+      </ng-container>
+
+      <tr
+        mat-header-row
+        *matHeaderRowDef="columnasMostradas">
+      </tr>
+
+      <tr
+        mat-row
+        *matRowDef="let row; columns: columnasMostradas">
+      </tr>
+
+    </table>
+
+    <div
+      *ngIf="pagos.length === 0"
+      class="sin-registros">
+
+      No hay pagos registrados.
+
+    </div>
+
+  </mat-card-content>
+
+</mat-card>

@@ -1,0 +1,54 @@
+package com.inmobiliaria.inmobiliaria_api.controller;
+
+import com.inmobiliaria.inmobiliaria_api.dto.request.LoginRequest;
+import com.inmobiliaria.inmobiliaria_api.dto.response.LoginResponse;
+import com.inmobiliaria.inmobiliaria_api.security.jwt.JwtService;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
+
+    public AuthController(JwtService jwtService, AuthenticationManager authenticationManager) {
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(
+            @Valid @RequestBody LoginRequest request) {
+
+        try {
+
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getCorreo(),
+                            request.getPassword()
+                    )
+            );
+
+            System.out.println("===== LOGIN EXITOSO =====");
+
+            String token = jwtService.generarToken(request.getCorreo());
+
+            return ResponseEntity.ok(new LoginResponse(token));
+
+
+        } catch (Exception e) {
+
+            System.out.println("===== ERROR LOGIN =====");
+            e.printStackTrace();
+
+            throw e;
+        }
+    }
+
+
+}
