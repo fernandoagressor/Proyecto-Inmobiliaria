@@ -4,7 +4,6 @@ import { authGuard } from './core/guards/auth-guard';
 import { MainLayout } from './shared/layouts/main-layout/main-layout';
 
 export const routes: Routes = [
-
   {
     path: 'login',
     loadComponent: () =>
@@ -17,7 +16,6 @@ export const routes: Routes = [
     component: MainLayout,
     canActivate: [authGuard],
     children: [
-
       {
         path: 'dashboard',
         loadComponent: () =>
@@ -40,19 +38,6 @@ export const routes: Routes = [
       },
 
       {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      },
-
-      {
-        path: 'contratos',
-        loadComponent: () =>
-          import('./features/contratos/pages/contratos-list/contratos-list')
-            .then(c => c.ContratosList)
-      },
-
-      {
         path: 'contratos',
         loadComponent: () =>
           import('./features/contratos/pages/contratos-list/contratos-list')
@@ -71,7 +56,6 @@ export const routes: Routes = [
         redirectTo: 'dashboard',
         pathMatch: 'full'
       }
-
     ]
   },
 
@@ -79,5 +63,4 @@ export const routes: Routes = [
     path: '**',
     redirectTo: ''
   }
-
 ];

@@ -1,0 +1,106 @@
+<aside class="sidebar">
+
+  <div class="logo-container">
+    <div class="logo-icono">
+      <mat-icon>apartment</mat-icon>
+    </div>
+
+    <div class="logo-texto">
+      <span class="logo-nombre">InmoCore</span>
+      <span class="logo-subtitulo">Panel administrativo</span>
+    </div>
+  </div>
+
+  <div class="menu-seccion">
+    <span class="menu-titulo">GENERAL</span>
+
+    <mat-nav-list>
+      @for (item of getGrupo('GENERAL'); track item.ruta) {
+      <a
+        mat-list-item
+        [routerLink]="item.ruta"
+        routerLinkActive="opcion-activa"
+        [routerLinkActiveOptions]="{
+            exact: item.ruta === '/dashboard'
+          }"
+        (click)="emitirCerrarMenu()"
+      >
+        <mat-icon matListItemIcon>
+          {{ item.icono }}
+        </mat-icon>
+
+        <span matListItemTitle>
+            {{ item.titulo }}
+          </span>
+      </a>
+      }
+    </mat-nav-list>
+  </div>
+
+  <div class="menu-seccion">
+    <span class="menu-titulo">GESTIÓN</span>
+
+    <mat-nav-list>
+      @for (item of getGrupo('GESTIÓN'); track item.ruta) {
+      <a
+        mat-list-item
+        [routerLink]="item.ruta"
+        routerLinkActive="opcion-activa"
+        (click)="emitirCerrarMenu()"
+      >
+        <mat-icon matListItemIcon>
+          {{ item.icono }}
+        </mat-icon>
+
+        <span matListItemTitle>
+            {{ item.titulo }}
+          </span>
+      </a>
+      }
+    </mat-nav-list>
+  </div>
+
+  <div class="menu-seccion">
+    <span class="menu-titulo">FINANZAS</span>
+
+    <mat-nav-list>
+      @for (item of getGrupo('FINANZAS'); track item.ruta) {
+      <a
+        mat-list-item
+        [routerLink]="item.ruta"
+        routerLinkActive="opcion-activa"
+        (click)="emitirCerrarMenu()"
+      >
+        <mat-icon matListItemIcon>
+          {{ item.icono }}
+        </mat-icon>
+
+        <span matListItemTitle>
+            {{ item.titulo }}
+          </span>
+      </a>
+      }
+    </mat-nav-list>
+  </div>
+
+  <div class="menu-pie">
+    <div class="usuario-resumen">
+
+      <div class="usuario-avatar">
+        <mat-icon>person</mat-icon>
+      </div>
+
+      <div class="usuario-datos">
+        <span class="usuario-nombre">
+          Administrador
+        </span>
+
+        <span class="usuario-rol">
+          ADMIN
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+</aside>

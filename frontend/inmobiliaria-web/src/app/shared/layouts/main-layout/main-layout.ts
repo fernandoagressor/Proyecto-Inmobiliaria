@@ -3,6 +3,8 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { AppHeader } from '../../components/app-header/app-header';
+import { AppSidebar } from '../../components/app-sidebar/app-sidebar';
 import { AuthService } from '../../../features/auth/services/auth.service';
 
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -21,7 +23,9 @@ import { MatListModule } from '@angular/material/list';
     MatSidenavModule,
     MatIconModule,
     MatButtonModule,
-    MatListModule
+    MatListModule,
+    AppSidebar,
+    AppHeader
   ],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.scss'
