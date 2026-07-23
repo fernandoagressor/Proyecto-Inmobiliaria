@@ -1,1 +1,69 @@
-<p>dashboard works!</p>
+@if (cargando) {
+
+<h2>Cargando Dashboard...</h2>
+
+} @else if (error) {
+
+<h2>{{ error }}</h2>
+
+} @else {
+
+<div class="dashboard">
+
+  <h1>Dashboard Ejecutivo</h1>
+
+  <div class="cards">
+
+    <app-kpi-card
+      titulo="Clientes"
+      [valor]="datosDashboard?.totalClientes ?? 0"
+      icono="groups"
+      tipo="primary">
+    </app-kpi-card>
+
+    <app-kpi-card
+      titulo="Propiedades"
+      [valor]="datosDashboard?.totalPropiedades ?? 0"
+      icono="home_work"
+      tipo="success">
+    </app-kpi-card>
+
+    <app-kpi-card
+      titulo="Contratos"
+      [valor]="datosDashboard?.totalContratos ?? 0"
+      icono="description"
+      tipo="warning">
+    </app-kpi-card>
+
+    <app-kpi-card
+      titulo="Contratos Vigentes"
+      [valor]="datosDashboard?.contratosVigentes ?? 0"
+      icono="verified"
+      tipo="success">
+    </app-kpi-card>
+
+    <app-kpi-card
+      titulo="Reservas"
+      [valor]="datosDashboard?.totalReservas ?? 0"
+      icono="event"
+      tipo="primary">
+    </app-kpi-card>
+
+    <app-kpi-card
+      titulo="Facturas Pendientes"
+      [valor]="datosDashboard?.facturasPendientes ?? 0"
+      icono="receipt_long"
+      tipo="danger">
+    </app-kpi-card>
+
+    <app-kpi-card
+      titulo="Pagos del Mes"
+      [valor]="datosDashboard?.pagosMes ?? 0"
+      icono="payments"
+      tipo="success">
+    </app-kpi-card>
+
+  </div>
+
+</div>
+}

@@ -1,0 +1,29 @@
+<div class="kpi-card" [ngClass]="tipo">
+
+  <div class="header">
+
+    <div class="icon">
+
+      <mat-icon>{{ icono }}</mat-icon>
+
+    </div>
+
+    <div class="text">
+
+      <h3>{{ titulo }}</h3>
+
+      @if (subtitulo) {
+      <span>{{ subtitulo }}</span>
+      }
+
+    </div>
+
+  </div>
+
+  <div class="value">
+
+    {{ valor }}
+
+  </div>
+
+</div>
