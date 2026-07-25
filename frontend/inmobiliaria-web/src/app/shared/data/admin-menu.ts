@@ -23,6 +23,13 @@ export const ADMIN_MENU: MenuItem[] = [
   },
 
   {
+    titulo: 'Reservas',
+    icono: 'event',
+    ruta: '/reservas',
+    grupo: 'GESTIÓN'
+  },
+
+  {
     titulo: 'Contratos',
     icono: 'description',
     ruta: '/contratos',
@@ -33,6 +40,13 @@ export const ADMIN_MENU: MenuItem[] = [
     titulo: 'Pagos',
     icono: 'payments',
     ruta: '/pagos',
+    grupo: 'FINANZAS'
+  },
+
+  {
+    titulo: 'Facturas',
+    icono: 'receipt_long',
+    ruta: '/facturas',
     grupo: 'FINANZAS'
   }
 ];

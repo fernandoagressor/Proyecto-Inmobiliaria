@@ -1,7 +1,6 @@
 package com.inmobiliaria.inmobiliaria_api.controller;
 
 import com.inmobiliaria.inmobiliaria_api.dto.request.FacturaRequest;
-import com.inmobiliaria.inmobiliaria_api.dto.response.ClienteResponse;
 import com.inmobiliaria.inmobiliaria_api.dto.response.FacturaResponse;
 import com.inmobiliaria.inmobiliaria_api.dto.response.PageResponse;
 import com.inmobiliaria.inmobiliaria_api.service.FacturaService;
@@ -31,6 +30,7 @@ public class FacturaController {
         );
     }
 
+    @GetMapping
     public ResponseEntity<PageResponse<FacturaResponse>> listar(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,

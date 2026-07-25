@@ -36,7 +36,12 @@ export const routes: Routes = [
           import('./features/propiedades/pages/propiedades-list/propiedades-list')
             .then(c => c.PropiedadesList)
       },
-
+      {
+        path: 'facturas',
+        loadComponent: () =>
+          import('./features/facturas/pages/facturas-list/facturas-list')
+            .then(c => c.FacturasList)
+      },
       {
         path: 'contratos',
         loadComponent: () =>

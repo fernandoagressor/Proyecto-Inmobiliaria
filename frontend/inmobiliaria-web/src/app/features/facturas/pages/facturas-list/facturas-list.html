@@ -1,0 +1,153 @@
+<section class="facturas-page">
+
+  <div class="encabezado">
+    <div>
+      <span class="eyebrow">FINANZAS</span>
+      <h1>Facturas</h1>
+      <p>Consulta y administra las facturas asociadas a los contratos.</p>
+    </div>
+
+    <button
+      mat-flat-button
+      class="boton-nuevo"
+      type="button"
+      (click)="nuevaFactura()"
+    >
+      <mat-icon>add</mat-icon>
+      Nueva factura
+    </button>
+  </div>
+  @if (mostrarFormulario) {
+
+  <div class="formulario-card">
+
+    <app-factura-form
+      [factura]="facturaSeleccionada"
+      (guardado)="facturaGuardada()"
+      (cancelar)="cerrarFormulario()">
+    </app-factura-form>
+
+  </div>
+
+  }
+  <div class="tabla-card">
+
+    @if (cargando) {
+    <div class="estado-carga">
+      <mat-spinner diameter="45"></mat-spinner>
+      <span>Cargando facturas...</span>
+    </div>
+    } @else {
+
+    @if (facturas.length > 0) {
+
+    <div class="tabla-contenedor">
+
+      <table mat-table [dataSource]="facturas">
+
+        <ng-container matColumnDef="numeroFactura">
+          <th mat-header-cell *matHeaderCellDef>Factura</th>
+          <td mat-cell *matCellDef="let factura">
+            <strong>#{{ factura.numeroFactura }}</strong>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="idContrato">
+          <th mat-header-cell *matHeaderCellDef>Contrato</th>
+          <td mat-cell *matCellDef="let factura">
+            #{{ factura.idContrato }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fechaEmision">
+          <th mat-header-cell *matHeaderCellDef>Emisión</th>
+          <td mat-cell *matCellDef="let factura">
+            {{ factura.fechaEmision | date:'dd/MM/yyyy' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fechaVencimiento">
+          <th mat-header-cell *matHeaderCellDef>Vencimiento</th>
+          <td mat-cell *matCellDef="let factura">
+            {{ factura.fechaVencimiento | date:'dd/MM/yyyy' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="valorFactura">
+          <th mat-header-cell *matHeaderCellDef>Valor</th>
+          <td mat-cell *matCellDef="let factura">
+            <strong>
+              {{ factura.valorFactura | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+            </strong>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let factura">
+                <span
+                  class="estado"
+                  [class.estado-pendiente]="factura.estado === 'PENDIENTE'"
+                  [class.estado-pagada]="factura.estado === 'PAGADA'"
+                >
+                  {{ factura.estado }}
+                </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+
+          <td mat-cell *matCellDef="let factura">
+            <button
+              mat-icon-button
+              type="button"
+              aria-label="Editar factura"
+              (click)="editar(factura)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+
+            <button
+              mat-icon-button
+              type="button"
+              aria-label="Eliminar factura"
+              [disabled]="factura.estado === 'PAGADA'"
+              (click)="eliminar(factura)"
+            >
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+
+      </table>
+
+    </div>
+
+    <mat-paginator
+      [length]="totalRegistros"
+      [pageIndex]="paginaActual"
+      [pageSize]="tamanoPagina"
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      (page)="cambiarPagina($event)"
+      showFirstLastButtons>
+    </mat-paginator>
+
+    } @else {
+
+    <div class="estado-vacio">
+      <mat-icon>receipt_long</mat-icon>
+      <h2>No hay facturas</h2>
+      <p>Todavía no existen facturas registradas.</p>
+    </div>
+
+    }
+
+    }
+
+  </div>
+
+</section>
