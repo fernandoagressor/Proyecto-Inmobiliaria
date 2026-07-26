@@ -1,6 +1,6 @@
 import { MenuItem } from '../models/menu-item';
 
-export const ADMIN_MENU: MenuItem[] = [
+export const EMPLOYEE_MENU: MenuItem[] = [
   {
     titulo: 'Dashboard',
     icono: 'dashboard',
@@ -22,31 +22,11 @@ export const ADMIN_MENU: MenuItem[] = [
     grupo: 'GESTIÓN'
   },
 
-  {
-    titulo: 'Empleados',
-    icono: 'badge',
-    ruta: '/empleados',
-    grupo: 'GESTIÓN'
-  },
 
   {
     titulo: 'Contratos',
     icono: 'description',
     ruta: '/contratos',
     grupo: 'GESTIÓN'
-  },
-
-  {
-    titulo: 'Pagos',
-    icono: 'payments',
-    ruta: '/pagos',
-    grupo: 'FINANZAS'
-  },
-
-  {
-    titulo: 'Facturas',
-    icono: 'receipt_long',
-    ruta: '/facturas',
-    grupo: 'FINANZAS'
   }
 ];

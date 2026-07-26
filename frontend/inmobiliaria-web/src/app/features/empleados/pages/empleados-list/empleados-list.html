@@ -1,0 +1,196 @@
+<section class="empleados-page">
+
+  <div class="encabezado">
+    <div>
+      @if (mostrarFormulario) {
+
+      <app-empleado-form
+        [empleado]="empleadoSeleccionado"
+        (guardado)="empleadoGuardado()"
+        (cancelar)="cerrarFormulario()"
+      >
+      </app-empleado-form>
+
+      }
+      <span class="eyebrow">GESTIÓN</span>
+      <h1>Empleados</h1>
+      <p>
+        Administra los empleados con acceso al sistema.
+      </p>
+    </div>
+
+    <button
+      mat-flat-button
+      class="boton-nuevo"
+      type="button"
+      (click)="nuevoEmpleado()"
+    >
+      <mat-icon>person_add</mat-icon>
+      Nuevo empleado
+    </button>
+  </div>
+
+  <div class="tabla-card">
+
+    @if (cargando) {
+
+    <div class="estado-carga">
+      Cargando empleados...
+    </div>
+
+    } @else {
+
+    @if (empleados.length > 0) {
+
+    <div class="tabla-contenedor">
+
+      <table
+        mat-table
+        [dataSource]="empleados"
+      >
+
+        <ng-container matColumnDef="idEmpleado">
+          <th mat-header-cell *matHeaderCellDef>
+            ID
+          </th>
+
+          <td mat-cell *matCellDef="let empleado">
+            {{ empleado.idEmpleado }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef>
+            Nombre
+          </th>
+
+          <td mat-cell *matCellDef="let empleado">
+            <strong>
+              {{ empleado.nombres }}
+              {{ empleado.apellidos }}
+            </strong>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="documento">
+          <th mat-header-cell *matHeaderCellDef>
+            Documento
+          </th>
+
+          <td mat-cell *matCellDef="let empleado">
+            {{ empleado.tipoDocumento }}
+            {{ empleado.numeroDocumento }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="telefono">
+          <th mat-header-cell *matHeaderCellDef>
+            Teléfono
+          </th>
+
+          <td mat-cell *matCellDef="let empleado">
+            {{ empleado.telefono }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="correo">
+          <th mat-header-cell *matHeaderCellDef>
+            Correo
+          </th>
+
+          <td mat-cell *matCellDef="let empleado">
+            {{ empleado.correo }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cargo">
+          <th mat-header-cell *matHeaderCellDef>
+            Cargo
+          </th>
+
+          <td mat-cell *matCellDef="let empleado">
+            {{ empleado.cargo }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fechaIngreso">
+          <th mat-header-cell *matHeaderCellDef>
+            Fecha ingreso
+          </th>
+
+          <td mat-cell *matCellDef="let empleado">
+            {{ empleado.fechaIngreso | date:'dd/MM/yyyy' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>
+            Acciones
+          </th>
+
+          <td mat-cell *matCellDef="let empleado">
+
+            <button
+              mat-icon-button
+              type="button"
+              aria-label="Editar empleado"
+              (click)="editarEmpleado(empleado)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+
+            <button
+              mat-icon-button
+              type="button"
+              aria-label="Eliminar empleado"
+              (click)="eliminarEmpleado(empleado)"
+            >
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+
+          </td>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="columnas"
+        ></tr>
+
+        <tr
+          mat-row
+          *matRowDef="let row; columns: columnas"
+        ></tr>
+
+      </table>
+
+    </div>
+
+    <mat-paginator
+      [length]="totalRegistros"
+      [pageIndex]="pagina"
+      [pageSize]="tamano"
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      (page)="cambiarPagina($event)"
+      showFirstLastButtons
+    >
+    </mat-paginator>
+
+    } @else {
+
+    <div class="estado-vacio">
+      <mat-icon>badge</mat-icon>
+
+      <h2>No hay empleados</h2>
+
+      <p>
+        Todavía no existen empleados registrados.
+      </p>
+    </div>
+
+    }
+
+    }
+
+  </div>
+
+</section>

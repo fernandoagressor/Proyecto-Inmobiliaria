@@ -1,11 +1,19 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  inject
+} from '@angular/core';
+
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-import { SidebarService } from '../../services/sidebar.service';
-import { ADMIN_MENU } from '../../data/admin-menu';
-import { MenuItem } from '../../models/menu-item';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
+
+import { SidebarService } from '../../services/sidebar.service';
+import { MenuItem } from '../../models/menu-item';
+
+import { AuthService } from '../../../features/auth/services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -21,14 +29,26 @@ import { MatListModule } from '@angular/material/list';
 })
 export class AppSidebar {
 
-  @Output() cerrarMenu = new EventEmitter<void>();
+  @Output()
+  cerrarMenu = new EventEmitter<void>();
 
-  menu: MenuItem[] = [];
+  private readonly sidebarService =
+    inject(SidebarService);
 
-  constructor(
-    private sidebarService: SidebarService
-  ) {
-    this.menu = this.sidebarService.getMenu();
+  private readonly authService =
+    inject(AuthService);
+
+  menu: MenuItem[] =
+    this.sidebarService.getMenu();
+
+  get correoUsuario(): string {
+    return this.authService.obtenerCorreo()
+      ?? 'Usuario';
+  }
+
+  get rolUsuario(): string {
+    return this.authService.obtenerRol()
+      ?? '';
   }
 
   emitirCerrarMenu(): void {
@@ -36,7 +56,8 @@ export class AppSidebar {
   }
 
   getGrupo(nombre: string): MenuItem[] {
-    return this.menu.filter(item => item.grupo === nombre);
+    return this.menu.filter(
+      item => item.grupo === nombre
+    );
   }
-
 }

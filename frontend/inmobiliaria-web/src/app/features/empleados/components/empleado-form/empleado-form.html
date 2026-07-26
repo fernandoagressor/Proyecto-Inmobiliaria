@@ -1,0 +1,172 @@
+<section class="formulario-empleado">
+
+  <div class="titulo-formulario">
+
+    <div>
+      <span class="eyebrow">
+        {{ editando ? 'EDITAR' : 'NUEVO' }}
+      </span>
+
+      <h2>
+        {{ editando ? 'Editar empleado' : 'Registrar empleado' }}
+      </h2>
+
+      <p>
+        Completa la información personal, laboral y de acceso.
+      </p>
+    </div>
+
+    <button
+      mat-icon-button
+      type="button"
+      (click)="cerrar()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+
+  </div>
+
+  <form
+    [formGroup]="formulario"
+    (ngSubmit)="guardar()"
+  >
+
+    <h3>Datos personales</h3>
+
+    <div class="grid">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo de documento</mat-label>
+
+        <mat-select formControlName="tipoDocumento">
+          <mat-option value="CC">CC</mat-option>
+          <mat-option value="CE">CE</mat-option>
+          <mat-option value="PASAPORTE">Pasaporte</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Número de documento</mat-label>
+        <input
+          matInput
+          formControlName="numeroDocumento"
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nombres</mat-label>
+        <input
+          matInput
+          formControlName="nombres"
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Apellidos</mat-label>
+        <input
+          matInput
+          formControlName="apellidos"
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Teléfono</mat-label>
+        <input
+          matInput
+          formControlName="telefono"
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Correo</mat-label>
+        <input
+          matInput
+          type="email"
+          formControlName="correo"
+        >
+      </mat-form-field>
+
+    </div>
+
+    <h3>Datos laborales</h3>
+
+    <div class="grid">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Cargo</mat-label>
+        <input
+          matInput
+          formControlName="cargo"
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha de ingreso</mat-label>
+        <input
+          matInput
+          type="date"
+          formControlName="fechaIngreso"
+        >
+      </mat-form-field>
+
+    </div>
+
+    <h3>Acceso al sistema</h3>
+
+    <mat-form-field
+      appearance="outline"
+      class="campo-completo"
+    >
+      <mat-label>
+        {{ editando ? 'Nueva contraseña (opcional)' : 'Contraseña inicial' }}
+      </mat-label>
+
+      <input
+        matInput
+        type="password"
+        formControlName="password"
+      >
+
+      <mat-hint>
+        @if (editando) {
+        Déjala vacía para conservar la contraseña actual.
+        } @else {
+        Mínimo 6 caracteres.
+        }
+      </mat-hint>
+
+    </mat-form-field>
+
+    <div class="acciones">
+
+      <button
+        mat-button
+        type="button"
+        [disabled]="guardando"
+        (click)="cerrar()"
+      >
+        Cancelar
+      </button>
+
+      <button
+        mat-flat-button
+        type="submit"
+        [disabled]="guardando"
+      >
+        <mat-icon>
+          {{ editando ? 'save' : 'person_add' }}
+        </mat-icon>
+
+        {{ guardando
+        ? 'Guardando...'
+        : editando
+        ? 'Guardar cambios'
+        : 'Crear empleado'
+        }}
+      </button>
+
+    </div>
+
+  </form>
+
+</section>
