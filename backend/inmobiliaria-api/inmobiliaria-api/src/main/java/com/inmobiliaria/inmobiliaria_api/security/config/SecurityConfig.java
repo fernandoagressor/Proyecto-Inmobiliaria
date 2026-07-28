@@ -1,17 +1,15 @@
 package com.inmobiliaria.inmobiliaria_api.security.config;
 
 import com.inmobiliaria.inmobiliaria_api.security.jwt.JwtFilter;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -37,10 +35,6 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http) throws Exception {
 
-        System.out.println(
-                "******** SECURITY CONFIG CARGADA ********"
-        );
-
         http
                 .cors(cors -> cors.configurationSource(
                         corsConfigurationSource()
@@ -58,7 +52,10 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        // ===============================
                         // RUTAS PÚBLICAS
+                        // ===============================
+
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/v3/api-docs/**",
@@ -66,161 +63,205 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        // PAGOS - SOLO ADMINISTRADOR PUEDE CREAR
-                        .requestMatchers(
-                                org.springframework.http.HttpMethod.POST,
-                                "/api/pagos/**"
-                        ).hasRole("ADMINISTRADOR")
 
-                        // PAGOS - SOLO ADMINISTRADOR PUEDE ANULAR
-                        .requestMatchers(
-                                org.springframework.http.HttpMethod.PATCH,
-                                "/api/pagos/**"
-                        ).hasRole("ADMINISTRADOR")
+                        // ===============================
+                        // CLIENTES
+                        // ===============================
 
-                        // PAGOS - ADMINISTRADOR Y CLIENTE PUEDEN CONSULTAR
                         .requestMatchers(
-                                org.springframework.http.HttpMethod.GET,
-                                "/api/pagos/**"
+                                HttpMethod.GET,
+                                "/api/clientes/**"
                         ).hasAnyRole(
                                 "ADMINISTRADOR",
+                                "EMPLEADO"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/clientes/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "EMPLEADO"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/clientes/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "EMPLEADO"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/clientes/**"
+                        ).hasRole("ADMINISTRADOR")
+
+
+                        // ===============================
+                        // PROPIEDADES
+                        // ===============================
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/propiedades/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "EMPLEADO",
                                 "CLIENTE"
                         )
 
-                        // RESTO DEL SISTEMA
-                                // CONTRATOS - solo ADMINISTRADOR y EMPLEADO pueden crear
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.POST,
-                                        "/api/contratos/**"
-                                ).hasAnyRole(
-                                        "ADMINISTRADOR",
-                                        "EMPLEADO"
-                                )
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/propiedades/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "EMPLEADO"
+                        )
 
-                                // CONTRATOS - solo ADMINISTRADOR y EMPLEADO pueden editar
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.PUT,
-                                        "/api/contratos/**"
-                                ).hasAnyRole(
-                                        "ADMINISTRADOR",
-                                        "EMPLEADO"
-                                )
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/propiedades/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "EMPLEADO"
+                        )
 
-                                // CONTRATOS - solo ADMINISTRADOR puede eliminar
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.DELETE,
-                                        "/api/contratos/**"
-                                ).hasRole("ADMINISTRADOR")
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/propiedades/**"
+                        ).hasRole("ADMINISTRADOR")
 
-                                // CONTRATOS - cliente también puede consultar
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.GET,
-                                        "/api/contratos/**"
-                                ).hasAnyRole(
-                                        "ADMINISTRADOR",
-                                        "EMPLEADO",
-                                        "CLIENTE"
-                                )
-                                // ===============================
-                                // FACTURAS
-                                // ===============================
 
-                                // Crear facturas
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.POST,
-                                        "/api/facturas/**"
-                                ).hasRole("ADMINISTRADOR")
+                        // ===============================
+                        // CONTRATOS
+                        // ===============================
 
-                                 // Modificar facturas
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.PUT,
-                                        "/api/facturas/**"
-                                ).hasRole("ADMINISTRADOR")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/contratos/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "EMPLEADO",
+                                "CLIENTE"
+                        )
 
-                                // Eliminar facturas
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.DELETE,
-                                        "/api/facturas/**"
-                                ).hasRole("ADMINISTRADOR")
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/contratos/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "EMPLEADO"
+                        )
 
-                                // Consultar facturas
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.GET,
-                                        "/api/facturas/**"
-                                ).hasAnyRole(
-                                        "ADMINISTRADOR",
-                                        "EMPLEADO",
-                                        "CLIENTE"
-                                )
-                                // ===============================
-                                // PROPIEDADES
-                                // ===============================
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/contratos/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "EMPLEADO"
+                        )
 
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.POST,
-                                        "/api/propiedades/**"
-                                ).hasAnyRole(
-                                        "ADMINISTRADOR",
-                                        "EMPLEADO"
-                                )
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/contratos/**"
+                        ).hasRole("ADMINISTRADOR")
 
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.PUT,
-                                        "/api/propiedades/**"
-                                ).hasAnyRole(
-                                        "ADMINISTRADOR",
-                                        "EMPLEADO"
-                                )
 
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.DELETE,
-                                        "/api/propiedades/**"
-                                ).hasRole("ADMINISTRADOR")
+                        // ===============================
+                        // RESERVAS
+                        // ===============================
 
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.GET,
-                                        "/api/propiedades/**"
-                                ).hasAnyRole(
-                                        "ADMINISTRADOR",
-                                        "EMPLEADO",
-                                        "CLIENTE"
-                                )
-                                // ===============================
-                                // RESERVAS
-                                // ===============================
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/reservas/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "EMPLEADO",
+                                "CLIENTE"
+                        )
 
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.POST,
-                                        "/api/reservas/**"
-                                ).hasAnyRole(
-                                        "ADMINISTRADOR",
-                                        "EMPLEADO"
-                                )
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/reservas/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "EMPLEADO"
+                        )
 
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.PUT,
-                                        "/api/reservas/**"
-                                ).hasAnyRole(
-                                        "ADMINISTRADOR",
-                                        "EMPLEADO"
-                                )
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/reservas/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "EMPLEADO"
+                        )
 
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.DELETE,
-                                        "/api/reservas/**"
-                                ).hasRole("ADMINISTRADOR")
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/reservas/**"
+                        ).hasRole("ADMINISTRADOR")
 
-                                .requestMatchers(
-                                        org.springframework.http.HttpMethod.GET,
-                                        "/api/reservas/**"
-                                ).hasAnyRole(
-                                        "ADMINISTRADOR",
-                                        "EMPLEADO",
-                                        "CLIENTE"
-                                )
+
+                        // ===============================
+                        // FACTURAS
+                        // ===============================
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/facturas/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "EMPLEADO",
+                                "CLIENTE"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/facturas/**"
+                        ).hasRole("ADMINISTRADOR")
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/facturas/**"
+                        ).hasRole("ADMINISTRADOR")
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/facturas/**"
+                        ).hasRole("ADMINISTRADOR")
+
+
+                        // ===============================
+                        // PAGOS
+                        // ===============================
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/pagos/**"
+                        ).hasAnyRole(
+                                "ADMINISTRADOR",
+                                "EMPLEADO",
+                                "CLIENTE"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/pagos/**"
+                        ).hasRole("ADMINISTRADOR")
+
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/pagos/**"
+                        ).hasRole("ADMINISTRADOR")
+
+
+                        // ===============================
+                        // RESTO DE ENDPOINTS
+                        // ===============================
+
                         .anyRequest().authenticated()
                 )
-
 
                 .addFilterBefore(
                         jwtFilter,
