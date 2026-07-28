@@ -7,6 +7,7 @@ import com.inmobiliaria.inmobiliaria_api.dto.response.ReservaResponse;
 import com.inmobiliaria.inmobiliaria_api.entity.Cliente;
 import com.inmobiliaria.inmobiliaria_api.entity.Propiedad;
 import com.inmobiliaria.inmobiliaria_api.entity.Reserva;
+import com.inmobiliaria.inmobiliaria_api.exception.BusinessException;
 import com.inmobiliaria.inmobiliaria_api.repository.ClienteRepository;
 import com.inmobiliaria.inmobiliaria_api.repository.PropiedadRepository;
 import com.inmobiliaria.inmobiliaria_api.repository.ReservaRepository;
@@ -34,25 +35,55 @@ public class ReservaServiceImpl implements ReservaService {
     private final UsuarioRepository usuarioRepository;
 
     @Override
+    @Transactional
     public ReservaResponse guardar(ReservaRequest request) {
 
-        Cliente cliente = clienteRepository.findById(request.getIdCliente())
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+        Cliente cliente = clienteRepository
+                .findById(request.getIdCliente())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Cliente no encontrado"
+                        )
+                );
 
-        Propiedad propiedad = propiedadRepository.findById(request.getIdPropiedad())
-                .orElseThrow(() -> new RuntimeException("Propiedad no encontrada"));
+        Propiedad propiedad = propiedadRepository
+                .findById(request.getIdPropiedad())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Propiedad no encontrada"
+                        )
+                );
+
+        if (!Boolean.TRUE.equals(propiedad.getActivo())) {
+            throw new BusinessException(
+                    "La propiedad se encuentra inactiva"
+            );
+        }
+
+        if (!"DISPONIBLE".equalsIgnoreCase(
+                propiedad.getEstado()
+        )) {
+            throw new BusinessException(
+                    "La propiedad no está disponible para reservar"
+            );
+        }
 
         Reserva reserva = new Reserva();
 
         reserva.setCliente(cliente);
         reserva.setPropiedad(propiedad);
         reserva.setFechaReserva(request.getFechaReserva());
-        reserva.setEstado(request.getEstado());
+        reserva.setEstado("ACTIVA");
         reserva.setActivo(true);
 
-        return reservaMapper.toResponse(
-                reservaRepository.save(reserva)
-        );
+        propiedad.setEstado("RESERVADA");
+
+        propiedadRepository.save(propiedad);
+
+        Reserva reservaGuardada =
+                reservaRepository.save(reserva);
+
+        return reservaMapper.toResponse(reservaGuardada);
     }
 
     @Override

@@ -44,6 +44,7 @@ public class PropiedadServiceImpl implements PropiedadService {
 
         Propiedad propiedad = propiedadMapper.toEntity(request);
 
+        propiedad.setEstado("DISPONIBLE");
         propiedad.setActivo(true);
 
         Propiedad propiedadGuardada =
