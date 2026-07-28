@@ -17,6 +17,11 @@ import com.inmobiliaria.inmobiliaria_api.util.SpecificationBuilder;
 import org.springframework.data.jpa.domain.Specification;
 import com.inmobiliaria.inmobiliaria_api.dto.request.ClienteRegistroRequest;
 import com.inmobiliaria.inmobiliaria_api.dto.request.ClienteActualizacionRequest;
+import com.inmobiliaria.inmobiliaria_api.entity.Rol;
+import com.inmobiliaria.inmobiliaria_api.entity.Usuario;
+import com.inmobiliaria.inmobiliaria_api.repository.RolRepository;
+import com.inmobiliaria.inmobiliaria_api.repository.UsuarioRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,6 +36,9 @@ public class ClienteServiceImpl implements ClienteService {
     private final ClienteRepository clienteRepository;
     private final PersonaRepository personaRepository;
     private final ClienteMapper clienteMapper;
+    private final UsuarioRepository usuarioRepository;
+    private final RolRepository rolRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public ClienteResponse guardar(ClienteRequest request) {
@@ -52,19 +60,40 @@ public class ClienteServiceImpl implements ClienteService {
     @Transactional
     public ClienteResponse registrarCliente(ClienteRegistroRequest request) {
 
-        if (personaRepository.existsByNumeroDocumento(request.getNumeroDocumento())) {
+        if (personaRepository.existsByNumeroDocumento(
+                request.getNumeroDocumento())) {
+
             throw new ResourceAlreadyExistsException(
                     "Ya existe una persona registrada con el número de documento "
                             + request.getNumeroDocumento()
             );
         }
 
-        if (personaRepository.existsByCorreo(request.getCorreo())) {
+        if (personaRepository.existsByCorreo(
+                request.getCorreo())) {
+
             throw new ResourceAlreadyExistsException(
                     "Ya existe una persona registrada con el correo "
                             + request.getCorreo()
             );
         }
+
+        if (usuarioRepository.existsByCorreo(
+                request.getCorreo())) {
+
+            throw new ResourceAlreadyExistsException(
+                    "Ya existe un usuario registrado con el correo "
+                            + request.getCorreo()
+            );
+        }
+
+        Rol rolCliente = rolRepository
+                .findByNombre("CLIENTE")
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "El rol CLIENTE no existe"
+                        )
+                );
 
         Persona persona = new Persona();
 
@@ -76,18 +105,38 @@ public class ClienteServiceImpl implements ClienteService {
         persona.setCorreo(request.getCorreo());
         persona.setActivo(true);
 
-        Persona personaGuardada = personaRepository.save(persona);
+        Persona personaGuardada =
+                personaRepository.save(persona);
 
-        Cliente cliente = clienteMapper.toEntity(request);
+        Cliente cliente =
+                clienteMapper.toEntity(request);
 
         cliente.setPersona(personaGuardada);
         cliente.setActivo(true);
 
-        Cliente clienteGuardado = clienteRepository.save(cliente);
+        Cliente clienteGuardado =
+                clienteRepository.save(cliente);
 
-        return clienteMapper.toResponse(clienteGuardado);
+        Usuario usuario = new Usuario();
+
+        usuario.setCorreo(request.getCorreo());
+
+        usuario.setPassword(
+                passwordEncoder.encode(
+                        request.getPassword()
+                )
+        );
+
+        usuario.setPersona(personaGuardada);
+        usuario.setRol(rolCliente);
+        usuario.setActivo(true);
+
+        usuarioRepository.save(usuario);
+
+        return clienteMapper.toResponse(
+                clienteGuardado
+        );
     }
-
     @Override
     @Transactional(readOnly = true)
     public PageResponse<ClienteResponse> listar(
@@ -146,7 +195,9 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = clienteRepository
                 .findByIdClienteAndActivoTrue(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Cliente no encontrado")
+                        new ResourceNotFoundException(
+                                "Cliente no encontrado"
+                        )
                 );
 
         Persona persona = cliente.getPersona();
@@ -157,12 +208,32 @@ public class ClienteServiceImpl implements ClienteService {
             );
         }
 
+        String correoAnterior = persona.getCorreo();
+
         if (personaRepository.existsByCorreoAndIdPersonaNot(
                 request.getCorreo(),
                 persona.getIdPersona()
         )) {
+
             throw new ResourceAlreadyExistsException(
                     "Ya existe otra persona registrada con el correo "
+                            + request.getCorreo()
+            );
+        }
+
+        Usuario usuario = usuarioRepository
+                .findByCorreo(correoAnterior)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Usuario asociado al cliente no encontrado"
+                        )
+                );
+
+        if (!correoAnterior.equalsIgnoreCase(request.getCorreo())
+                && usuarioRepository.existsByCorreo(request.getCorreo())) {
+
+            throw new ResourceAlreadyExistsException(
+                    "Ya existe un usuario registrado con el correo "
                             + request.getCorreo()
             );
         }
@@ -172,11 +243,27 @@ public class ClienteServiceImpl implements ClienteService {
 
         cliente.setDireccion(request.getDireccion());
 
+        usuario.setCorreo(request.getCorreo());
+
+        if (request.getPassword() != null
+                && !request.getPassword().isBlank()) {
+
+            usuario.setPassword(
+                    passwordEncoder.encode(
+                            request.getPassword()
+                    )
+            );
+        }
+
         personaRepository.save(persona);
+        usuarioRepository.save(usuario);
 
-        Cliente clienteActualizado = clienteRepository.save(cliente);
+        Cliente clienteActualizado =
+                clienteRepository.save(cliente);
 
-        return clienteMapper.toResponse(clienteActualizado);
+        return clienteMapper.toResponse(
+                clienteActualizado
+        );
     }
 
     @Override
@@ -191,8 +278,27 @@ public class ClienteServiceImpl implements ClienteService {
                         )
                 );
 
-        cliente.setActivo(false);
+        Persona persona = cliente.getPersona();
 
+        if (persona == null) {
+            throw new ResourceNotFoundException(
+                    "El cliente no tiene una persona asociada"
+            );
+        }
+
+        Usuario usuario = usuarioRepository
+                .findByCorreo(persona.getCorreo())
+                .orElse(null);
+
+        cliente.setActivo(false);
+        persona.setActivo(false);
+
+        if (usuario != null) {
+            usuario.setActivo(false);
+            usuarioRepository.save(usuario);
+        }
+
+        personaRepository.save(persona);
         clienteRepository.save(cliente);
     }
 }

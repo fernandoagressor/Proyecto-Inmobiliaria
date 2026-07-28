@@ -15,4 +15,12 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
     Optional<Reserva> findByIdReservaAndActivoTrue(Long idReserva);
 
+    Long countByClienteIdClienteAndActivoTrue(
+            Long idCliente
+    );
+    Page<Reserva> findByClienteIdClienteAndActivoTrue(
+            Long idCliente,
+            Pageable pageable
+    );
+
 }

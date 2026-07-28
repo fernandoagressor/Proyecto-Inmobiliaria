@@ -10,9 +10,11 @@
 
 <div class="dashboard">
 
-  <h1>Dashboard Ejecutivo</h1>
+  <h1>{{ tituloDashboard }}</h1>
 
   <div class="cards">
+
+    @if (!esCliente) {
 
     <app-kpi-card
       titulo="Clientes"
@@ -21,15 +23,17 @@
       tipo="primary">
     </app-kpi-card>
 
+    }
+
     <app-kpi-card
-      titulo="Propiedades"
+      [titulo]="esCliente ? 'Mis propiedades' : 'Propiedades'"
       [valor]="datosDashboard?.totalPropiedades ?? 0"
       icono="home_work"
       tipo="success">
     </app-kpi-card>
 
     <app-kpi-card
-      titulo="Contratos"
+      [titulo]="esCliente ? 'Mis contratos' : 'Contratos'"
       [valor]="datosDashboard?.totalContratos ?? 0"
       icono="description"
       tipo="warning">
@@ -43,21 +47,21 @@
     </app-kpi-card>
 
     <app-kpi-card
-      titulo="Reservas"
+      [titulo]="esCliente ? 'Mis reservas' : 'Reservas'"
       [valor]="datosDashboard?.totalReservas ?? 0"
       icono="event"
       tipo="primary">
     </app-kpi-card>
 
     <app-kpi-card
-      titulo="Facturas Pendientes"
+      [titulo]="esCliente ? 'Mis facturas pendientes' : 'Facturas Pendientes'"
       [valor]="datosDashboard?.facturasPendientes ?? 0"
       icono="receipt_long"
       tipo="danger">
     </app-kpi-card>
 
     <app-kpi-card
-      titulo="Pagos del Mes"
+      [titulo]="esCliente ? 'Mis pagos del mes' : 'Pagos del Mes'"
       [valor]="datosDashboard?.pagosMes ?? 0"
       icono="payments"
       tipo="success">
@@ -66,4 +70,5 @@
   </div>
 
 </div>
+
 }

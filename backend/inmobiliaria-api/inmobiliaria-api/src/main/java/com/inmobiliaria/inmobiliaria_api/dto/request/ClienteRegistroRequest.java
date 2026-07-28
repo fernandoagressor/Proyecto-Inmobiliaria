@@ -52,4 +52,8 @@ public class ClienteRegistroRequest {
     @NotBlank(message = "La dirección es obligatoria.")
     @Size(max = 200, message = "La dirección no puede superar los 200 caracteres.")
     private String direccion;
+
+    @NotBlank(message = "La contraseña inicial es obligatoria.")
+    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres.")
+    private String password;
 }

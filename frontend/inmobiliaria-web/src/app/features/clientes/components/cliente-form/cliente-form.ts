@@ -107,6 +107,13 @@ export class ClienteForm {
         Validators.minLength(5),
         Validators.maxLength(200)
       ]
+    ],
+
+    password: [
+      '',
+      [
+        Validators.minLength(6)
+      ]
     ]
   });
 
@@ -144,6 +151,14 @@ export class ClienteForm {
       this.clienteForm.controls.nombres.updateValueAndValidity();
       this.clienteForm.controls.apellidos.updateValueAndValidity();
     }
+    if (!this.modoEdicion) {
+
+      this.clienteForm.controls.password.addValidators(
+        Validators.required
+      );
+
+      this.clienteForm.controls.password.updateValueAndValidity();
+    }
 
   }
 
@@ -162,7 +177,8 @@ export class ClienteForm {
       const clienteActualizacion: ClienteActualizacionRequest = {
         telefono: valores.telefono!,
         correo: valores.correo!,
-        direccion: valores.direccion!
+        direccion: valores.direccion!,
+        password: valores.password || undefined
       };
 
       this.clienteService.actualizarCliente(
@@ -204,7 +220,8 @@ export class ClienteForm {
       apellidos: valores.apellidos!,
       telefono: valores.telefono!,
       correo: valores.correo!,
-      direccion: valores.direccion!
+      direccion: valores.direccion!,
+      password: valores.password!
     };
 
     this.clienteService.crearCliente(clienteRequest)

@@ -13,6 +13,11 @@ import com.inmobiliaria.inmobiliaria_api.repository.ContratoRepository;
 import com.inmobiliaria.inmobiliaria_api.repository.PropiedadRepository;
 import com.inmobiliaria.inmobiliaria_api.service.ContratoService;
 import com.inmobiliaria.inmobiliaria_api.exception.ResourceNotFoundException;
+import com.inmobiliaria.inmobiliaria_api.entity.Usuario;
+import com.inmobiliaria.inmobiliaria_api.repository.UsuarioRepository;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,6 +34,7 @@ public class ContratoServiceImpl implements ContratoService {
     private final ClienteRepository clienteRepository;
     private final PropiedadRepository propiedadRepository;
     private final ContratoMapper contratoMapper;
+    private final UsuarioRepository usuarioRepository;
 
     @Override
     public ContratoResponse guardar(ContratoRequest request) {
@@ -63,29 +69,84 @@ public class ContratoServiceImpl implements ContratoService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<ContratoResponse> listar(Pageable pageable) {
+    public PageResponse<ContratoResponse> listar(
+            Pageable pageable) {
 
-        Page<ContratoResponse> pagina = contratoRepository
-                .findByActivoTrue(pageable)
-                .map(contratoMapper::toResponse);
+        Usuario usuario = obtenerUsuarioAutenticado();
+
+        Page<Contrato> pagina;
+
+        if ("CLIENTE".equalsIgnoreCase(
+                usuario.getRol().getNombre()
+        )) {
+
+            Cliente cliente =
+                    obtenerClienteAutenticado(usuario);
+
+            pagina = contratoRepository
+                    .findByClienteIdClienteAndActivoTrue(
+                            cliente.getIdCliente(),
+                            pageable
+                    );
+
+        } else {
+
+            pagina = contratoRepository
+                    .findByActivoTrue(pageable);
+        }
+
+        Page<ContratoResponse> paginaResponse =
+                pagina.map(contratoMapper::toResponse);
 
         return new PageResponse<>(
-                pagina.getContent(),
-                pagina.getNumber(),
-                pagina.getSize(),
-                pagina.getTotalElements(),
-                pagina.getTotalPages(),
-                pagina.isFirst(),
-                pagina.isLast()
+                paginaResponse.getContent(),
+                paginaResponse.getNumber(),
+                paginaResponse.getSize(),
+                paginaResponse.getTotalElements(),
+                paginaResponse.getTotalPages(),
+                paginaResponse.isFirst(),
+                paginaResponse.isLast()
         );
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ContratoResponse buscarPorId(Long id) {
 
-        Contrato contrato = contratoRepository.findById(id)
+        Contrato contrato = contratoRepository
+                .findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Contrato no encontrado"));
+                        new ResourceNotFoundException(
+                                "Contrato no encontrado"
+                        )
+                );
+
+        if (!Boolean.TRUE.equals(contrato.getActivo())) {
+            throw new ResourceNotFoundException(
+                    "Contrato no encontrado"
+            );
+        }
+
+        Usuario usuario =
+                obtenerUsuarioAutenticado();
+
+        if ("CLIENTE".equalsIgnoreCase(
+                usuario.getRol().getNombre()
+        )) {
+
+            Cliente cliente =
+                    obtenerClienteAutenticado(usuario);
+
+            if (!contrato
+                    .getCliente()
+                    .getIdCliente()
+                    .equals(cliente.getIdCliente())) {
+
+                throw new ResourceNotFoundException(
+                        "Contrato no encontrado"
+                );
+            }
+        }
 
         return contratoMapper.toResponse(contrato);
     }
@@ -138,5 +199,44 @@ public class ContratoServiceImpl implements ContratoService {
         contrato.setActivo(false);
 
         contratoRepository.save(contrato);
+    }
+    private Usuario obtenerUsuarioAutenticado() {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()) {
+
+            throw new BusinessException(
+                    "Usuario no autenticado"
+            );
+        }
+
+        String correo = authentication.getName();
+
+        return usuarioRepository
+                .findByCorreo(correo)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Usuario autenticado no encontrado"
+                        )
+                );
+    }
+    private Cliente obtenerClienteAutenticado(
+            Usuario usuario) {
+
+        return clienteRepository
+                .findByPersonaIdPersonaAndActivoTrue(
+                        usuario.getPersona()
+                                .getIdPersona()
+                )
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Cliente asociado al usuario no encontrado"
+                        )
+                );
     }
 }

@@ -9,13 +9,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Long>,
         JpaSpecificationExecutor<Cliente> {
 
     Optional<Cliente> findByIdClienteAndActivoTrue(Long idCliente);
+
     Page<Cliente> findByActivoTrue(Pageable pageable);
 
-
+    Optional<Cliente> findByPersonaIdPersonaAndActivoTrue(
+            Long idPersona
+    );
 }

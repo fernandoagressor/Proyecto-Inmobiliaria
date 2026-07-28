@@ -11,6 +11,12 @@ import com.inmobiliaria.inmobiliaria_api.repository.ClienteRepository;
 import com.inmobiliaria.inmobiliaria_api.repository.PropiedadRepository;
 import com.inmobiliaria.inmobiliaria_api.repository.ReservaRepository;
 import com.inmobiliaria.inmobiliaria_api.service.ReservaService;
+import com.inmobiliaria.inmobiliaria_api.entity.Usuario;
+import com.inmobiliaria.inmobiliaria_api.exception.ResourceNotFoundException;
+import com.inmobiliaria.inmobiliaria_api.repository.UsuarioRepository;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +31,7 @@ public class ReservaServiceImpl implements ReservaService {
     private final ClienteRepository clienteRepository;
     private final PropiedadRepository propiedadRepository;
     private final ReservaMapper reservaMapper;
+    private final UsuarioRepository usuarioRepository;
 
     @Override
     public ReservaResponse guardar(ReservaRequest request) {
@@ -50,28 +57,76 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<ReservaResponse> listar(Pageable pageable) {
+    public PageResponse<ReservaResponse> listar(
+            Pageable pageable) {
 
-        Page<ReservaResponse> pagina = reservaRepository
-                .findByActivoTrue(pageable)
-                .map(reservaMapper::toResponse);
+        Usuario usuario = obtenerUsuarioAutenticado();
+
+        Page<Reserva> pagina;
+
+        if ("CLIENTE".equalsIgnoreCase(
+                usuario.getRol().getNombre()
+        )) {
+
+            Cliente cliente =
+                    obtenerClienteAutenticado(usuario);
+
+            pagina = reservaRepository
+                    .findByClienteIdClienteAndActivoTrue(
+                            cliente.getIdCliente(),
+                            pageable
+                    );
+
+        } else {
+
+            pagina = reservaRepository
+                    .findByActivoTrue(pageable);
+        }
+
+        Page<ReservaResponse> paginaResponse =
+                pagina.map(reservaMapper::toResponse);
 
         return new PageResponse<>(
-                pagina.getContent(),
-                pagina.getNumber(),
-                pagina.getSize(),
-                pagina.getTotalElements(),
-                pagina.getTotalPages(),
-                pagina.isFirst(),
-                pagina.isLast()
+                paginaResponse.getContent(),
+                paginaResponse.getNumber(),
+                paginaResponse.getSize(),
+                paginaResponse.getTotalElements(),
+                paginaResponse.getTotalPages(),
+                paginaResponse.isFirst(),
+                paginaResponse.isLast()
         );
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ReservaResponse buscarPorId(Long id) {
 
-        Reserva reserva = reservaRepository.findByIdReservaAndActivoTrue(id)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+        Reserva reserva = reservaRepository
+                .findByIdReservaAndActivoTrue(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Reserva no encontrada"
+                        )
+                );
+
+        Usuario usuario = obtenerUsuarioAutenticado();
+
+        if ("CLIENTE".equalsIgnoreCase(
+                usuario.getRol().getNombre()
+        )) {
+
+            Cliente cliente =
+                    obtenerClienteAutenticado(usuario);
+
+            if (!reserva.getCliente()
+                    .getIdCliente()
+                    .equals(cliente.getIdCliente())) {
+
+                throw new ResourceNotFoundException(
+                        "Reserva no encontrada"
+                );
+            }
+        }
 
         return reservaMapper.toResponse(reserva);
     }
@@ -107,6 +162,45 @@ public class ReservaServiceImpl implements ReservaService {
         reserva.setActivo(false);
 
         reservaRepository.save(reserva);
+    }
+    private Usuario obtenerUsuarioAutenticado() {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()) {
+
+            throw new ResourceNotFoundException(
+                    "Usuario no autenticado"
+            );
+        }
+
+        String correo = authentication.getName();
+
+        return usuarioRepository
+                .findByCorreo(correo)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Usuario autenticado no encontrado"
+                        )
+                );
+    }
+
+    private Cliente obtenerClienteAutenticado(
+            Usuario usuario) {
+
+        return clienteRepository
+                .findByPersonaIdPersonaAndActivoTrue(
+                        usuario.getPersona().getIdPersona()
+                )
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Cliente asociado al usuario no encontrado"
+                        )
+                );
     }
 
 }

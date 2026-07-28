@@ -24,4 +24,7 @@ public class ClienteActualizacionRequest {
     @NotBlank(message = "La dirección es obligatoria.")
     @Size(max = 200, message = "La dirección no puede superar los 200 caracteres.")
     private String direccion;
+
+    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres.")
+    private String password;
 }

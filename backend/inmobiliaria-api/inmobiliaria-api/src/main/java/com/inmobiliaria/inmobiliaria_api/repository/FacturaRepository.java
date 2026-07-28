@@ -10,15 +10,34 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface FacturaRepository extends JpaRepository<Factura, Long> {
+public interface FacturaRepository
+        extends JpaRepository<Factura, Long> {
 
     Long countByEstadoIgnoreCase(String estado);
 
-    Page<Factura> findByActivoTrue(Pageable pageable);
+    Page<Factura> findByActivoTrue(
+            Pageable pageable
+    );
 
-    Optional<Factura> findByIdFacturaAndActivoTrue(Long idFactura);
+    Page<Factura> findByContratoClienteIdClienteAndActivoTrue(
+            Long idCliente,
+            Pageable pageable
+    );
 
-    List<Factura> findByContratoIdContratoAndActivoTrue(Long idContrato);
+    Optional<Factura> findByIdFacturaAndActivoTrue(
+            Long idFactura
+    );
 
-    boolean existsByNumeroFacturaAndActivoTrue(Integer numeroFactura);
+    List<Factura> findByContratoIdContratoAndActivoTrue(
+            Long idContrato
+    );
+
+    boolean existsByNumeroFacturaAndActivoTrue(
+            Integer numeroFactura
+    );
+
+    Long countByContratoClienteIdClienteAndEstadoIgnoreCaseAndActivoTrue(
+            Long idCliente,
+            String estado
+    );
 }

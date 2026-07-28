@@ -2,7 +2,13 @@ package com.inmobiliaria.inmobiliaria_api.service.impl;
 
 import com.inmobiliaria.inmobiliaria_api.dto.mapper.PagoMapper;
 import com.inmobiliaria.inmobiliaria_api.dto.request.PagoRequest;
-import com.inmobiliaria.inmobiliaria_api.dto.response.ClienteResponse;
+import com.inmobiliaria.inmobiliaria_api.entity.Cliente;
+import com.inmobiliaria.inmobiliaria_api.entity.Usuario;
+import com.inmobiliaria.inmobiliaria_api.repository.ClienteRepository;
+import com.inmobiliaria.inmobiliaria_api.repository.UsuarioRepository;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.inmobiliaria.inmobiliaria_api.dto.response.PageResponse;
 import com.inmobiliaria.inmobiliaria_api.dto.response.PagoResponse;
 import com.inmobiliaria.inmobiliaria_api.entity.Contrato;
@@ -28,6 +34,8 @@ public class PagoServiceImpl implements PagoService {
     private final PagoRepository pagoRepository;
     private final ContratoRepository contratoRepository;
     private final PagoMapper pagoMapper;
+    private final UsuarioRepository usuarioRepository;
+    private final ClienteRepository clienteRepository;
 
     @Override
     @Transactional
@@ -91,43 +99,145 @@ public class PagoServiceImpl implements PagoService {
     @Transactional(readOnly = true)
     public PageResponse<PagoResponse> listar(Pageable pageable) {
 
-        Page<PagoResponse> pagina = pagoRepository
-                .findByActivoTrue(pageable)
-                .map(pagoMapper::toResponse);
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        String correo = authentication.getName();
+
+        Usuario usuario = usuarioRepository
+                .findByCorreo(correo)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Usuario autenticado no encontrado"
+                        )
+                );
+
+        Page<Pago> pagina;
+
+        if ("CLIENTE".equalsIgnoreCase(
+                usuario.getRol().getNombre()
+        )) {
+
+            Cliente cliente = clienteRepository
+                    .findByPersonaIdPersonaAndActivoTrue(
+                            usuario.getPersona().getIdPersona()
+                    )
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException(
+                                    "Cliente asociado al usuario no encontrado"
+                            )
+                    );
+
+            pagina = pagoRepository
+                    .findByContratoClienteIdClienteAndActivoTrue(
+                            cliente.getIdCliente(),
+                            pageable
+                    );
+
+        } else {
+
+            pagina = pagoRepository
+                    .findByActivoTrue(pageable);
+        }
+
+        Page<PagoResponse> paginaResponse =
+                pagina.map(pagoMapper::toResponse);
 
         return new PageResponse<>(
-                pagina.getContent(),
-                pagina.getNumber(),
-                pagina.getSize(),
-                pagina.getTotalElements(),
-                pagina.getTotalPages(),
-                pagina.isFirst(),
-                pagina.isLast()
+                paginaResponse.getContent(),
+                paginaResponse.getNumber(),
+                paginaResponse.getSize(),
+                paginaResponse.getTotalElements(),
+                paginaResponse.getTotalPages(),
+                paginaResponse.isFirst(),
+                paginaResponse.isLast()
         );
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PagoResponse buscarPorId(Long idPago) {
 
         Pago pago = buscarPagoActivo(idPago);
+
+        Usuario usuario = obtenerUsuarioAutenticado();
+
+        if ("CLIENTE".equalsIgnoreCase(
+                usuario.getRol().getNombre()
+        )) {
+
+            Cliente cliente = obtenerClienteAutenticado(usuario);
+
+            Long idClientePago = pago
+                    .getContrato()
+                    .getCliente()
+                    .getIdCliente();
+
+            if (!idClientePago.equals(
+                    cliente.getIdCliente()
+            )) {
+
+                throw new ResourceNotFoundException(
+                        "Pago no encontrado"
+                );
+            }
+        }
 
         return pagoMapper.toResponse(pago);
     }
 
     @Override
-    public List<PagoResponse> listarPorContrato(Long idContrato) {
+    @Transactional(readOnly = true)
+    public List<PagoResponse> listarPorContrato(
+            Long idContrato) {
 
-        Contrato contrato = contratoRepository.findById(idContrato)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Contrato no encontrado con ID: " + idContrato
-                ));
+        Contrato contrato = contratoRepository
+                .findById(idContrato)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Contrato no encontrado con ID: "
+                                        + idContrato
+                        )
+                );
 
-        if (!Boolean.TRUE.equals(contrato.getActivo())) {
-            throw new BusinessException("El contrato se encuentra inactivo");
+        if (!Boolean.TRUE.equals(
+                contrato.getActivo()
+        )) {
+
+            throw new BusinessException(
+                    "El contrato se encuentra inactivo"
+            );
+        }
+
+        Usuario usuario = obtenerUsuarioAutenticado();
+
+        if ("CLIENTE".equalsIgnoreCase(
+                usuario.getRol().getNombre()
+        )) {
+
+            Cliente cliente =
+                    obtenerClienteAutenticado(usuario);
+
+            Long idClienteContrato =
+                    contrato.getCliente()
+                            .getIdCliente();
+
+            if (!idClienteContrato.equals(
+                    cliente.getIdCliente()
+            )) {
+
+                throw new ResourceNotFoundException(
+                        "Contrato no encontrado"
+                );
+            }
         }
 
         return pagoRepository
-                .findByContratoIdContratoAndActivoTrue(idContrato)
+                .findByContratoIdContratoAndActivoTrue(
+                        idContrato
+                )
                 .stream()
                 .map(pagoMapper::toResponse)
                 .toList();
@@ -172,5 +282,44 @@ public class PagoServiceImpl implements PagoService {
         }
 
         return pago;
+    }
+    private Usuario obtenerUsuarioAutenticado() {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()) {
+
+            throw new BusinessException(
+                    "Usuario no autenticado"
+            );
+        }
+
+        String correo = authentication.getName();
+
+        return usuarioRepository
+                .findByCorreo(correo)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Usuario autenticado no encontrado"
+                        )
+                );
+    }
+    private Cliente obtenerClienteAutenticado(
+            Usuario usuario) {
+
+        return clienteRepository
+                .findByPersonaIdPersonaAndActivoTrue(
+                        usuario.getPersona()
+                                .getIdPersona()
+                )
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Cliente asociado al usuario no encontrado"
+                        )
+                );
     }
 }

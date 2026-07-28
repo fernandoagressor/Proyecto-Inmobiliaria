@@ -9,6 +9,13 @@ import com.inmobiliaria.inmobiliaria_api.exception.ResourceAlreadyExistsExceptio
 import com.inmobiliaria.inmobiliaria_api.exception.ResourceNotFoundException;
 import com.inmobiliaria.inmobiliaria_api.repository.PropiedadRepository;
 import com.inmobiliaria.inmobiliaria_api.service.PropiedadService;
+import com.inmobiliaria.inmobiliaria_api.entity.Cliente;
+import com.inmobiliaria.inmobiliaria_api.entity.Usuario;
+import com.inmobiliaria.inmobiliaria_api.repository.ClienteRepository;
+import com.inmobiliaria.inmobiliaria_api.repository.UsuarioRepository;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +28,8 @@ public class PropiedadServiceImpl implements PropiedadService {
 
     private final PropiedadRepository propiedadRepository;
     private final PropiedadMapper propiedadMapper;
+    private final UsuarioRepository usuarioRepository;
+    private final ClienteRepository clienteRepository;
 
     @Override
     @Transactional
@@ -43,22 +52,47 @@ public class PropiedadServiceImpl implements PropiedadService {
         return propiedadMapper.toResponse(propiedadGuardada);
     }
 
+
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<PropiedadResponse> listar(Pageable pageable) {
+    public PageResponse<PropiedadResponse> listar(
+            Pageable pageable) {
 
-        Page<PropiedadResponse> pagina = propiedadRepository
-                .findByActivoTrue(pageable)
-                .map(propiedadMapper::toResponse);
+        Usuario usuario =
+                obtenerUsuarioAutenticado();
+
+        Page<Propiedad> pagina;
+
+        if ("CLIENTE".equalsIgnoreCase(
+                usuario.getRol().getNombre()
+        )) {
+
+            Cliente cliente =
+                    obtenerClienteAutenticado(usuario);
+
+            pagina = propiedadRepository
+                    .buscarPropiedadesPorCliente(
+                            cliente.getIdCliente(),
+                            pageable
+                    );
+
+        } else {
+
+            pagina = propiedadRepository
+                    .findByActivoTrue(pageable);
+        }
+
+        Page<PropiedadResponse> paginaResponse =
+                pagina.map(propiedadMapper::toResponse);
 
         return new PageResponse<>(
-                pagina.getContent(),
-                pagina.getNumber(),
-                pagina.getSize(),
-                pagina.getTotalElements(),
-                pagina.getTotalPages(),
-                pagina.isFirst(),
-                pagina.isLast()
+                paginaResponse.getContent(),
+                paginaResponse.getNumber(),
+                paginaResponse.getSize(),
+                paginaResponse.getTotalElements(),
+                paginaResponse.getTotalPages(),
+                paginaResponse.isFirst(),
+                paginaResponse.isLast()
         );
     }
 
@@ -134,6 +168,46 @@ public class PropiedadServiceImpl implements PropiedadService {
         propiedad.setActivo(false);
 
         propiedadRepository.save(propiedad);
+    }
+    private Usuario obtenerUsuarioAutenticado() {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()) {
+
+            throw new ResourceNotFoundException(
+                    "Usuario no autenticado"
+            );
+        }
+
+        String correo =
+                authentication.getName();
+
+        return usuarioRepository
+                .findByCorreo(correo)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Usuario autenticado no encontrado"
+                        )
+                );
+    }
+    private Cliente obtenerClienteAutenticado(
+            Usuario usuario) {
+
+        return clienteRepository
+                .findByPersonaIdPersonaAndActivoTrue(
+                        usuario.getPersona()
+                                .getIdPersona()
+                )
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Cliente asociado al usuario no encontrado"
+                        )
+                );
     }
 
 }

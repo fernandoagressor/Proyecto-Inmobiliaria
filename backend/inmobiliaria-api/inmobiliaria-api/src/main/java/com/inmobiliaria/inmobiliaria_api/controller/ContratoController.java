@@ -3,6 +3,8 @@ package com.inmobiliaria.inmobiliaria_api.controller;
 import com.inmobiliaria.inmobiliaria_api.dto.request.ContratoRequest;
 import com.inmobiliaria.inmobiliaria_api.dto.response.ContratoResponse;
 import com.inmobiliaria.inmobiliaria_api.dto.response.PageResponse;
+import com.inmobiliaria.inmobiliaria_api.entity.Contrato;
+import com.inmobiliaria.inmobiliaria_api.exception.ResourceNotFoundException;
 import com.inmobiliaria.inmobiliaria_api.service.ContratoService;
 import com.inmobiliaria.inmobiliaria_api.util.PageableUtil;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +50,14 @@ public class ContratoController {
                 )
         );
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<ContratoResponse> buscarPorId(
+            @PathVariable Long id) {
 
+        return ResponseEntity.ok(
+                contratoService.buscarPorId(id)
+        );
+    }
     @PutMapping("/{id}")
     public ResponseEntity<ContratoResponse> actualizar(
             @PathVariable Long id,

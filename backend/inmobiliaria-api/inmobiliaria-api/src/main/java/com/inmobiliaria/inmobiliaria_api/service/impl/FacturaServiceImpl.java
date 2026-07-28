@@ -6,6 +6,14 @@ import com.inmobiliaria.inmobiliaria_api.dto.response.FacturaResponse;
 import com.inmobiliaria.inmobiliaria_api.dto.response.PageResponse;
 import com.inmobiliaria.inmobiliaria_api.entity.Contrato;
 import com.inmobiliaria.inmobiliaria_api.entity.Factura;
+import com.inmobiliaria.inmobiliaria_api.entity.Cliente;
+import com.inmobiliaria.inmobiliaria_api.entity.Usuario;
+
+import com.inmobiliaria.inmobiliaria_api.repository.ClienteRepository;
+import com.inmobiliaria.inmobiliaria_api.repository.UsuarioRepository;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.inmobiliaria.inmobiliaria_api.exception.BusinessException;
 import com.inmobiliaria.inmobiliaria_api.exception.ResourceNotFoundException;
 import com.inmobiliaria.inmobiliaria_api.repository.ContratoRepository;
@@ -26,6 +34,8 @@ public class FacturaServiceImpl implements FacturaService {
     private final FacturaRepository facturaRepository;
     private final ContratoRepository contratoRepository;
     private final FacturaMapper facturaMapper;
+    private final UsuarioRepository usuarioRepository;
+    private final ClienteRepository clienteRepository;
 
     @Override
     @Transactional
@@ -58,38 +68,116 @@ public class FacturaServiceImpl implements FacturaService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<FacturaResponse> listar(Pageable pageable) {
+    public PageResponse<FacturaResponse> listar(
+            Pageable pageable) {
 
-        Page<FacturaResponse> pagina = facturaRepository
-                .findByActivoTrue(pageable)
-                .map(facturaMapper::toResponse);
+        Usuario usuario =
+                obtenerUsuarioAutenticado();
+
+        Page<Factura> pagina;
+
+        if ("CLIENTE".equalsIgnoreCase(
+                usuario.getRol().getNombre()
+        )) {
+
+            Cliente cliente =
+                    obtenerClienteAutenticado(usuario);
+
+            pagina = facturaRepository
+                    .findByContratoClienteIdClienteAndActivoTrue(
+                            cliente.getIdCliente(),
+                            pageable
+                    );
+
+        } else {
+
+            pagina = facturaRepository
+                    .findByActivoTrue(pageable);
+        }
+
+        Page<FacturaResponse> paginaResponse =
+                pagina.map(facturaMapper::toResponse);
 
         return new PageResponse<>(
-                pagina.getContent(),
-                pagina.getNumber(),
-                pagina.getSize(),
-                pagina.getTotalElements(),
-                pagina.getTotalPages(),
-                pagina.isFirst(),
-                pagina.isLast()
+                paginaResponse.getContent(),
+                paginaResponse.getNumber(),
+                paginaResponse.getSize(),
+                paginaResponse.getTotalElements(),
+                paginaResponse.getTotalPages(),
+                paginaResponse.isFirst(),
+                paginaResponse.isLast()
         );
     }
 
     @Override
+    @Transactional(readOnly = true)
     public FacturaResponse buscarPorId(Long idFactura) {
 
         Factura factura = buscarFacturaActiva(idFactura);
+
+        Usuario usuario = obtenerUsuarioAutenticado();
+
+        if ("CLIENTE".equalsIgnoreCase(
+                usuario.getRol().getNombre()
+        )) {
+
+            Cliente cliente =
+                    obtenerClienteAutenticado(usuario);
+
+            Long idClienteFactura = factura
+                    .getContrato()
+                    .getCliente()
+                    .getIdCliente();
+
+            if (!idClienteFactura.equals(
+                    cliente.getIdCliente()
+            )) {
+
+                throw new ResourceNotFoundException(
+                        "Factura no encontrada"
+                );
+            }
+        }
 
         return facturaMapper.toResponse(factura);
     }
 
     @Override
-    public List<FacturaResponse> listarPorContrato(Long idContrato) {
+    @Transactional(readOnly = true)
+    public List<FacturaResponse> listarPorContrato(
+            Long idContrato) {
 
-        buscarContratoActivo(idContrato);
+        Contrato contrato =
+                buscarContratoActivo(idContrato);
+
+        Usuario usuario =
+                obtenerUsuarioAutenticado();
+
+        if ("CLIENTE".equalsIgnoreCase(
+                usuario.getRol().getNombre()
+        )) {
+
+            Cliente cliente =
+                    obtenerClienteAutenticado(usuario);
+
+            Long idClienteContrato =
+                    contrato.getCliente()
+                            .getIdCliente();
+
+            if (!idClienteContrato.equals(
+                    cliente.getIdCliente()
+            )) {
+
+                throw new ResourceNotFoundException(
+                        "Contrato no encontrado"
+                );
+            }
+        }
 
         return facturaRepository
-                .findByContratoIdContratoAndActivoTrue(idContrato)
+                .findByContratoIdContratoAndActivoTrue(
+                        idContrato
+                )
                 .stream()
                 .map(facturaMapper::toResponse)
                 .toList();
@@ -205,5 +293,45 @@ public class FacturaServiceImpl implements FacturaService {
                             + "el saldo pendiente del contrato"
             );
         }
+    }
+    private Usuario obtenerUsuarioAutenticado() {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()) {
+
+            throw new BusinessException(
+                    "Usuario no autenticado"
+            );
+        }
+
+        String correo =
+                authentication.getName();
+
+        return usuarioRepository
+                .findByCorreo(correo)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Usuario autenticado no encontrado"
+                        )
+                );
+    }
+    private Cliente obtenerClienteAutenticado(
+            Usuario usuario) {
+
+        return clienteRepository
+                .findByPersonaIdPersonaAndActivoTrue(
+                        usuario.getPersona()
+                                .getIdPersona()
+                )
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Cliente asociado al usuario no encontrado"
+                        )
+                );
     }
 }

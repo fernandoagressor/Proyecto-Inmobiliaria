@@ -6,4 +6,5 @@ export interface ClienteRequest {
   telefono: string;
   correo: string;
   direccion: string;
+  password: string;
 }

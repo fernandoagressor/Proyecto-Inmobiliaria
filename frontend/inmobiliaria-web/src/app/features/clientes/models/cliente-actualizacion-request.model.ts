@@ -6,4 +6,6 @@ export interface ClienteActualizacionRequest {
 
   direccion: string;
 
+  password?: string;
+
 }
