@@ -36,7 +36,9 @@ public class ContratoServiceImpl implements ContratoService {
     private final ContratoMapper contratoMapper;
     private final UsuarioRepository usuarioRepository;
 
+
     @Override
+    @Transactional
     public ContratoResponse guardar(ContratoRequest request) {
 
         Cliente cliente = clienteRepository.findById(request.getIdCliente())
@@ -46,6 +48,17 @@ public class ContratoServiceImpl implements ContratoService {
         Propiedad propiedad = propiedadRepository.findById(request.getIdPropiedad())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Propiedad no encontrada"));
+        if (!Boolean.TRUE.equals(propiedad.getActivo())) {
+            throw new BusinessException(
+                    "La propiedad se encuentra inactiva"
+            );
+        }
+
+        if ("VENDIDA".equalsIgnoreCase(propiedad.getEstado())) {
+            throw new BusinessException(
+                    "La propiedad ya se encuentra vendida"
+            );
+        }
 
         if (request.getCuotaInicial().compareTo(request.getValorTotal()) > 0) {
             throw new BusinessException(
@@ -61,6 +74,9 @@ public class ContratoServiceImpl implements ContratoService {
         contrato.setCliente(cliente);
         contrato.setPropiedad(propiedad);
         contrato.setActivo(true);
+
+        propiedad.setEstado("VENDIDA");
+        propiedadRepository.save(propiedad);
 
         return contratoMapper.toResponse(
                 contratoRepository.save(contrato)
