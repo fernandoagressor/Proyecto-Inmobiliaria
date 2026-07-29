@@ -33,6 +33,18 @@ export const routes: Routes = [
           import('./features/dashboard/pages/dashboard/dashboard')
             .then(c => c.Dashboard)
       },
+      {
+        path: 'proyectos',
+        canActivate: [roleGuard],
+        data: {
+          roles: [
+            'ADMINISTRADOR'
+          ]
+        },
+        loadComponent: () =>
+          import('./features/proyectos/pages/proyectos-list/proyectos-list')
+            .then(c => c.ProyectosListComponent)
+      },
 
       {
         path: 'clientes',
