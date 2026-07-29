@@ -7,77 +7,22 @@
     (accion)="abrirFormulario()">
   </app-page-header>
 
-  <mat-card>
+  <div class="proyectos-container">
 
-    <mat-card-content>
+    <app-page-header
+      titulo="Proyectos"
+      textoBoton="Nuevo Proyecto"
+      icono="add_business"
+      (accion)="abrirFormulario()">
+    </app-page-header>
 
-      <table
-        mat-table
-        [dataSource]="proyectos"
-        class="tabla-proyectos">
+    <app-project-table
+      [proyectos]="proyectos"
+      [columnasMostradas]="columnasMostradas"
+      (editar)="editarProyecto($event)"
+      (eliminar)="eliminarProyecto($event)">
+    </app-project-table>
 
-        <ng-container matColumnDef="codigo">
-          <th mat-header-cell *matHeaderCellDef>Código</th>
-          <td mat-cell *matCellDef="let proyecto">
-            {{ proyecto.codigo }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="nombre">
-          <th mat-header-cell *matHeaderCellDef>Nombre</th>
-          <td mat-cell *matCellDef="let proyecto">
-            {{ proyecto.nombre }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="estado">
-          <th mat-header-cell *matHeaderCellDef>Estado</th>
-          <td mat-cell *matCellDef="let proyecto">
-            {{ proyecto.estado }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="fechaCreacion">
-          <th mat-header-cell *matHeaderCellDef>Fecha</th>
-          <td mat-cell *matCellDef="let proyecto">
-            {{ proyecto.fechaCreacion | date:'dd/MM/yyyy' }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="acciones">
-          <th mat-header-cell *matHeaderCellDef>Acciones</th>
-
-          <td mat-cell *matCellDef="let proyecto">
-
-            <button
-              mat-icon-button
-              color="primary"
-              (click)="editarProyecto(proyecto)">
-
-              <mat-icon>edit</mat-icon>
-
-            </button>
-
-            <button
-              mat-icon-button
-              color="warn"
-              (click)="eliminarProyecto(proyecto)">
-
-              <mat-icon>delete</mat-icon>
-
-            </button>
-
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="columnasMostradas"></tr>
-
-        <tr mat-row *matRowDef="let row; columns: columnasMostradas"></tr>
-
-      </table>
-
-    </mat-card-content>
-
-  </mat-card>
+  </div>
 
 </div>

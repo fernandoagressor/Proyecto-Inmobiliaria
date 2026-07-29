@@ -6,6 +6,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
+import { ProjectTable } from '../../components/project-table/project-table';
 import { PageHeader } from '../../../../shared/components/page-header/page-header';
 
 import { Proyecto } from '../../models/proyecto';
@@ -19,7 +20,8 @@ import { Proyecto } from '../../models/proyecto';
     MatTableModule,
     MatButtonModule,
     MatIconModule,
-    PageHeader
+    PageHeader,
+    ProjectTable
   ],
   templateUrl: './proyectos-list.html',
   styleUrl: './proyectos-list.scss'
